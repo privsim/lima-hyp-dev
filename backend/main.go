@@ -26,8 +26,6 @@ func main() {
     walletPath := filepath.Join("..", "wallet")
     os.Setenv("DISCOVERY_AS_LOCALHOST", "true")
 
-    ccpPath := filepath.Join("..", "gateway", "connection-org1.yaml")
-
     certPath := filepath.Join(walletPath, "user", "signcerts", "cert.pem")
     certPEM, err := ioutil.ReadFile(certPath)
     if err != nil {
@@ -44,12 +42,6 @@ func main() {
         log.Fatalf("Failed to parse certificate: %v", err)
     }
 
-    keyPath := filepath.Join(walletPath, "user", "keystore", "key.pem")
-    keyPEM, err := ioutil.ReadFile(keyPath)
-    if err != nil {
-        log.Fatalf("Failed to read private key: %v", err)
-    }
-
     id, err := identity.NewX509Identity("Org1MSP", cert)
     if err != nil {
         log.Fatalf("Failed to create X509 identity: %v", err)
@@ -57,7 +49,7 @@ func main() {
 
     gateway, err := client.Connect(
         id,
-        client.WithIdentity(id),
+        client.WithEndpoint("localhost:7051"),
     )
     if err != nil {
         log.Fatalf("Failed to connect to gateway: %v", err)
