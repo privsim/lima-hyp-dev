@@ -13,7 +13,6 @@ import (
 
     "github.com/hyperledger/fabric-gateway/pkg/client"
     "github.com/hyperledger/fabric-gateway/pkg/identity"
-    "github.com/hyperledger/fabric-gateway/pkg/network"
 )
 
 // Struct for asset
@@ -23,17 +22,13 @@ type Asset struct {
 }
 
 func main() {
-    // Setup log
     log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-    // Define wallet path
     walletPath := filepath.Join("..", "wallet")
     os.Setenv("DISCOVERY_AS_LOCALHOST", "true")
 
-    // Load connection profile
     ccpPath := filepath.Join("..", "gateway", "connection-org1.yaml")
 
-    // Load the user identity
     certPath := filepath.Join(walletPath, "user", "signcerts", "cert.pem")
     cert, err := ioutil.ReadFile(certPath)
     if err != nil {
@@ -46,7 +41,6 @@ func main() {
         log.Fatalf("Failed to read private key: %v", err)
     }
 
-    // Create the Gateway connection
     id := identity.NewX509Identity("Org1MSP", cert, key)
     gateway, err := client.Connect(
         id,
@@ -57,13 +51,9 @@ func main() {
     }
     defer gateway.Close()
 
-    // Get network channel
     network := gateway.GetNetwork("mychannel")
-
-    // Get contract
     contract := network.GetContract("fabcar")
 
-    // HTTP Handlers
     http.HandleFunc("/queryAsset", func(w http.ResponseWriter, r *http.Request) {
         id := r.URL.Query().Get("id")
         result, err := contract.EvaluateTransaction("QueryAsset", id)
