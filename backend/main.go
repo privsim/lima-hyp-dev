@@ -42,15 +42,23 @@ func main() {
         log.Fatalf("Failed to parse certificate: %v", err)
     }
 
+    keyPath := filepath.Join(walletPath, "user", "keystore", "key.pem")
+    keyPEM, err := ioutil.ReadFile(keyPath)
+    if err != nil {
+        log.Fatalf("Failed to read private key: %v", err)
+    }
+
     id, err := identity.NewX509Identity("Org1MSP", cert)
     if err != nil {
         log.Fatalf("Failed to create X509 identity: %v", err)
     }
 
-    gateway, err := client.Connect(
-        id,
-        client.WithEndpoint("localhost:7051"),
-    )
+    clientConnection := &client.Connection{
+        Identity: id,
+        Endpoint: "localhost:7051", // Adjust this as per your setup
+    }
+
+    gateway, err := client.Connect(clientConnection)
     if err != nil {
         log.Fatalf("Failed to connect to gateway: %v", err)
     }
