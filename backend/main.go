@@ -1,12 +1,19 @@
 package main
 
 import (
-    "github.com/hyperledger/fabric-sdk-go/pkg/gateway"
+    "context"
+    "crypto/x509"
+    "encoding/pem"
+    "fmt"
+    "io/ioutil"
     "log"
     "net/http"
-    "encoding/json"
-    "path/filepath"
     "os"
+    "path/filepath"
+
+    "github.com/hyperledger/fabric-gateway/pkg/client"
+    "github.com/hyperledger/fabric-gateway/pkg/identity"
+    "github.com/hyperledger/fabric-gateway/pkg/network"
 )
 
 // Struct for asset
@@ -23,34 +30,35 @@ func main() {
     walletPath := filepath.Join("..", "wallet")
     os.Setenv("DISCOVERY_AS_LOCALHOST", "true")
 
-    // Create a new file system wallet for managing identities.
-    wallet, err := gateway.NewFileSystemWallet(walletPath)
-    if err != nil {
-        log.Fatalf("Failed to create wallet: %v", err)
-    }
-
-    if !wallet.Exists("appUser") {
-        log.Fatalln("An identity for the user 'appUser' does not exist in the wallet")
-    }
-
     // Load connection profile
     ccpPath := filepath.Join("..", "gateway", "connection-org1.yaml")
 
-    // Create a new gateway connection
-    gw, err := gateway.Connect(
-        gateway.WithConfig(gateway.ConfigOption(filepath.Clean(ccpPath))),
-        gateway.WithIdentity(wallet, "appUser"),
+    // Load the user identity
+    certPath := filepath.Join(walletPath, "user", "signcerts", "cert.pem")
+    cert, err := ioutil.ReadFile(certPath)
+    if err != nil {
+        log.Fatalf("Failed to read certificate: %v", err)
+    }
+
+    keyPath := filepath.Join(walletPath, "user", "keystore", "key.pem")
+    key, err := ioutil.ReadFile(keyPath)
+    if err != nil {
+        log.Fatalf("Failed to read private key: %v", err)
+    }
+
+    // Create the Gateway connection
+    id := identity.NewX509Identity("Org1MSP", cert, key)
+    gateway, err := client.Connect(
+        id,
+        client.WithGateway(client.WithNetworkConfig(ccpPath)),
     )
     if err != nil {
         log.Fatalf("Failed to connect to gateway: %v", err)
     }
-    defer gw.Close()
+    defer gateway.Close()
 
     // Get network channel
-    network, err := gw.GetNetwork("mychannel")
-    if err != nil {
-        log.Fatalf("Failed to get network: %v", err)
-    }
+    network := gateway.GetNetwork("mychannel")
 
     // Get contract
     contract := network.GetContract("fabcar")
