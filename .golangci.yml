@@ -1,0 +1,18 @@
+run:
+  timeout: 5m
+linters:
+  enable:
+    - golint
+    - errcheck
+    - gofmt
+    - govet
+    - ineffassign
+    - staticcheck
+    - structcheck
+    - typecheck
+    - varcheck
+linters-settings:
+  golint:
+    min-confidence: 0.8
+  gofmt:
+    simplify: true

@@ -43,6 +43,21 @@ main() {
     create_playbook_file
     run_ansible_playbook
 
+    # Deploy backend
+    cd backend
+    go build -o app
+    kubectl create deployment backend --image=backend:latest
+    kubectl expose deployment backend --type=LoadBalancer --port=8080
+    cd ..
+
+    # Deploy frontend
+    cd frontend
+    npm install
+    npm run build
+    kubectl create deployment frontend --image=frontend:latest
+    kubectl expose deployment frontend --type=LoadBalancer --port=80
+    cd ..
+
     # Check the status of the pods
     echo "Checking the status of the pods in the namespace oss-hlf-infra..."
     kubectl get pods -n oss-hlf-infra

@@ -38,7 +38,7 @@ func main() {
 
     // Create a new gateway connection
     gw, err := gateway.Connect(
-        gateway.WithConfig(gateway.FromFile(filepath.Clean(ccpPath))),
+        gateway.WithConfig(gateway.ConfigOption(filepath.Clean(ccpPath))),
         gateway.WithIdentity(wallet, "appUser"),
     )
     if err != nil {

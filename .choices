@@ -1,0 +1,15 @@
+# Build backend image
+cd backend
+docker build -t backend:latest .
+cd ..
+
+# Build frontend image
+cd frontend
+docker build -t frontend:latest .
+cd ..
+
+eval $(minikube docker-env)
+
+./main.sh
+
+ssh-keygen -t rsa -b 4096 -C "privsim@github"
