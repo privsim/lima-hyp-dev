@@ -12,6 +12,7 @@ import (
 
     "github.com/hyperledger/fabric-gateway/pkg/client"
     "github.com/hyperledger/fabric-gateway/pkg/identity"
+    "github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 )
 
 // Struct for asset
@@ -49,7 +50,7 @@ func main() {
 
     gateway, err := client.Connect(
         client.WithIdentity(id),
-        client.WithGatewayPeer("localhost:7051"), // Adjust this as per your setup
+        client.WithEndpoint("localhost:7051"), // Adjust this as per your setup
     )
     if err != nil {
         log.Fatalf("Failed to connect to gateway: %v", err)
