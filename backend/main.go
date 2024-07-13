@@ -2,6 +2,7 @@ package main
 
 import (
     "crypto/x509"
+    "encoding/json"
     "encoding/pem"
     "io/ioutil"
     "log"
@@ -56,7 +57,7 @@ func main() {
 
     gateway, err := client.Connect(
         id,
-        client.WithConfig(ccpPath),
+        client.WithIdentity(id),
     )
     if err != nil {
         log.Fatalf("Failed to connect to gateway: %v", err)
